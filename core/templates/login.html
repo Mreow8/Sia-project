@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f0f2f5;
+      }
+      .card {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 320px;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Welcome</h2>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="handleLogin()">Sign In / Sign Up</button>
+      <p id="status" style="color: red; margin-top: 10px"></p>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+      // SECURE CONFIG INJECTION FROM DJANGO
+      const firebaseConfig = {
+        apiKey: "{{ firebase_config.apiKey }}",
+        authDomain: "{{ firebase_config.authDomain }}",
+        projectId: "{{ firebase_config.projectId }}",
+        appId: "{{ firebase_config.appId }}",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      window.handleLogin = async () => {
+        const email = document.getElementById("email").value;
+        const pass = document.getElementById("password").value;
+        const status = document.getElementById("status");
+
+        try {
+          let userCredential;
+          try {
+            // Try Login
+            userCredential = await signInWithEmailAndPassword(
+              auth,
+              email,
+              pass
+            );
+          } catch (e) {
+            // If failed, Try Signup
+            userCredential = await createUserWithEmailAndPassword(
+              auth,
+              email,
+              pass
+            );
+          }
+
+          status.style.color = "blue";
+          status.innerText = "Verifying with server...";
+
+          const token = await userCredential.user.getIdToken();
+
+          // Send to Django
+          const res = await fetch("/api/login/", {
+            method: "POST",
+            body: JSON.stringify({ token: token }),
+          });
+
+          if (res.ok) window.location.href = "/";
+          else throw new Error("Server rejected token");
+        } catch (error) {
+          status.style.color = "red";
+          status.innerText = error.message;
+        }
+      };
+    </script>
+  </body>
+</html>
