@@ -1,54 +1,215 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Login</title>
+    <title>Secure Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body {
-        font-family: sans-serif;
+        font-family: "Segoe UI", sans-serif;
+        background: #e9eff5;
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100vh;
-        background: #f0f2f5;
+        margin: 0;
       }
-      .card {
+      .container {
         background: white;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        width: 320px;
+        width: 380px;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       }
+      h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 5px;
+      }
+      .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 25px;
+      }
+
+      /* Toggle Switch */
+      .mode-switch {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        background: #f0f2f5;
+        border-radius: 20px;
+        padding: 4px;
+      }
+      .mode-btn {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 8px;
+        border-radius: 16px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #666;
+        transition: 0.3s;
+      }
+      .mode-btn.active {
+        background: white;
+        color: #1877f2;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+      }
+      .tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        font-size: 14px;
+      }
+      .tab.active {
+        color: #1877f2;
+        border-bottom: 2px solid #1877f2;
+        font-weight: bold;
+      }
+
       input {
         width: 100%;
-        padding: 10px;
-        margin: 5px 0;
+        padding: 12px;
+        margin: 8px 0;
         border: 1px solid #ddd;
-        border-radius: 5px;
+        border-radius: 6px;
         box-sizing: border-box;
+        font-size: 14px;
       }
       button {
         width: 100%;
-        padding: 10px;
-        background: #007bff;
+        padding: 12px;
+        background: #1877f2;
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 6px;
+        font-size: 16px;
         cursor: pointer;
-        margin-top: 10px;
+        margin-top: 15px;
+        transition: background 0.2s;
+        font-weight: 600;
       }
       button:hover {
-        background: #0056b3;
+        background: #1565c0;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      #status {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 13px;
+        color: #dc3545;
+        min-height: 20px;
+      }
+
+      .otp-display {
+        text-align: center;
+        letter-spacing: 5px;
+        font-size: 20px;
+        font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h2>Welcome</h2>
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button onclick="handleLogin()">Sign In / Sign Up</button>
-      <p id="status" style="color: red; margin-top: 10px"></p>
+    <div class="container">
+      <h2 id="page-title">Welcome Back</h2>
+      <p class="subtitle">Securely access your account</p>
+
+      <div class="mode-switch">
+        <button class="mode-btn active" onclick="setMode('login')">
+          Login
+        </button>
+        <button class="mode-btn" onclick="setMode('register')">Register</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('email')">Email</div>
+        <div class="tab" onclick="switchTab('phone')">Phone</div>
+      </div>
+
+      <div id="email-section">
+        <div id="email-login-view">
+          <input type="email" id="login-email" placeholder="Email Address" />
+          <input type="password" id="login-password" placeholder="Password" />
+          <button onclick="handleEmailLogin()">Log In</button>
+        </div>
+
+        <div id="email-register-view" class="hidden">
+          <div id="email-reg-step1">
+            <input
+              type="email"
+              id="reg-email"
+              placeholder="Enter Email to Verify"
+            />
+            <button onclick="sendEmailOtp()">Send Verification Code</button>
+          </div>
+
+          <div id="email-reg-step2" class="hidden">
+            <p class="subtitle">Enter code sent to email</p>
+            <input
+              type="text"
+              id="reg-email-otp"
+              class="otp-display"
+              placeholder="123456"
+            />
+            <button onclick="verifyEmailOtp()">Verify Code</button>
+          </div>
+
+          <div id="email-reg-step3" class="hidden">
+            <p class="subtitle">Email Verified! Set Password.</p>
+            <input
+              type="password"
+              id="reg-password"
+              placeholder="New Password"
+            />
+            <input
+              type="password"
+              id="reg-confirm"
+              placeholder="Confirm Password"
+            />
+            <button onclick="finalizeEmailRegister()">Create Account</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="phone-section" class="hidden">
+        <div id="phone-step-1">
+          <input type="tel" id="phone" placeholder="+63 917 123 4567" />
+          <div id="recaptcha-container"></div>
+          <button onclick="sendPhoneOtp()" id="phone-action-btn">
+            Send Code
+          </button>
+        </div>
+        <div id="phone-step-2" class="hidden">
+          <p class="subtitle">Enter SMS code:</p>
+          <input
+            type="text"
+            id="phone-otp"
+            class="otp-display"
+            placeholder="123456"
+          />
+          <button onclick="verifyPhoneOtp()">Verify & Login</button>
+        </div>
+      </div>
+
+      <p id="status"></p>
     </div>
 
     <script type="module">
@@ -57,58 +218,262 @@
         getAuth,
         signInWithEmailAndPassword,
         createUserWithEmailAndPassword,
+        signInWithPhoneNumber,
+        RecaptchaVerifier,
+        signOut, // <--- IMPORTED SIGNOUT
       } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-      // SECURE CONFIG INJECTION FROM DJANGO
       const firebaseConfig = {
         apiKey: "{{ firebase_config.apiKey }}",
         authDomain: "{{ firebase_config.authDomain }}",
         projectId: "{{ firebase_config.projectId }}",
+        storageBucket: "{{ firebase_config.storageBucket }}",
+        messagingSenderId: "{{ firebase_config.messagingSenderId }}",
         appId: "{{ firebase_config.appId }}",
+        measurementId: "{{ firebase_config.measurementId }}",
       };
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
 
-      window.handleLogin = async () => {
-        const email = document.getElementById("email").value;
-        const pass = document.getElementById("password").value;
-        const status = document.getElementById("status");
+      // State
+      window.currentMode = "login";
+      window.confirmationResult = null;
+
+      // Status helper
+      function setStatus(msg, type = "normal") {
+        const el = document.getElementById("status");
+        el.innerText = msg;
+        el.style.color = type === "error" ? "#dc3545" : "#666";
+      }
+
+      // Security Reporter
+      async function reportFailure(identifier) {
+        try {
+          const res = await fetch("/api/report_failure/", {
+            method: "POST",
+            body: JSON.stringify({ identifier }),
+          });
+          const data = await res.json();
+          if (data.status === "blocked") {
+            setStatus(data.message, "error");
+            document
+              .querySelectorAll("button")
+              .forEach((b) => (b.disabled = true));
+            return true;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        return false;
+      }
+
+      // EMAIL LOGIN
+      window.handleEmailLogin = async () => {
+        const email = document.getElementById("login-email").value;
+        const pass = document.getElementById("login-password").value;
+
+        if (!email || !pass) return setStatus("Fill all fields", "error");
+        setStatus("Authenticating...");
 
         try {
-          let userCredential;
-          try {
-            // Try Login
-            userCredential = await signInWithEmailAndPassword(
-              auth,
-              email,
-              pass
-            );
-          } catch (e) {
-            // If failed, Try Signup
-            userCredential = await createUserWithEmailAndPassword(
-              auth,
-              email,
-              pass
-            );
-          }
-
-          status.style.color = "blue";
-          status.innerText = "Verifying with server...";
-
-          const token = await userCredential.user.getIdToken();
-
-          // Send to Django
-          const res = await fetch("/api/login/", {
-            method: "POST",
-            body: JSON.stringify({ token: token }),
-          });
-
-          if (res.ok) window.location.href = "/";
-          else throw new Error("Server rejected token");
+          const cred = await signInWithEmailAndPassword(auth, email, pass);
+          completeBackendLogin(cred.user);
         } catch (error) {
-          status.style.color = "red";
-          status.innerText = error.message;
+          setStatus("Login failed.", "error");
+          await reportFailure(email);
+        }
+      };
+
+      // SEND EMAIL OTP
+      window.sendEmailOtp = async () => {
+        const email = document.getElementById("reg-email").value;
+        if (!email) return setStatus("Enter email first", "error");
+
+        setStatus("Sending OTP...");
+        const res = await fetch("/api/send_email_otp/", {
+          method: "POST",
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          document.getElementById("email-reg-step1").classList.add("hidden");
+          document.getElementById("email-reg-step2").classList.remove("hidden");
+          setStatus("OTP sent!");
+        } else {
+          setStatus(data.message, "error");
+        }
+      };
+
+      // VERIFY EMAIL OTP
+      window.verifyEmailOtp = async () => {
+        const otp = document.getElementById("reg-email-otp").value;
+        setStatus("Verifying...");
+
+        const res = await fetch("/api/verify_email_otp/", {
+          method: "POST",
+          body: JSON.stringify({ otp }),
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          document.getElementById("email-reg-step2").classList.add("hidden");
+          document.getElementById("email-reg-step3").classList.remove("hidden");
+          setStatus("Email verified.");
+        } else {
+          setStatus("Incorrect OTP.", "error");
+        }
+      };
+
+      // FINAL EMAIL ACCOUNT CREATION (UPDATED)
+      window.finalizeEmailRegister = async () => {
+        const email = document.getElementById("reg-email").value;
+        const pass = document.getElementById("reg-password").value;
+        const confirm = document.getElementById("reg-confirm").value;
+
+        if (pass !== confirm)
+          return setStatus("Passwords do not match", "error");
+        if (pass.length < 6) return setStatus("Password too short", "error");
+
+        try {
+          // 1. Create account (Firebase logs in by default here)
+          await createUserWithEmailAndPassword(auth, email, pass);
+
+          // 2. LOG OUT IMMEDIATELY
+          await signOut(auth);
+
+          // 3. Switch UI to Login mode
+          setMode("login");
+
+          // 4. Pre-fill the login email for convenience
+          document.getElementById("login-email").value = email;
+
+          // 5. Clear registration fields
+          document.getElementById("reg-password").value = "";
+          document.getElementById("reg-confirm").value = "";
+
+          setStatus("Account created! Please log in.", "normal");
+        } catch (e) {
+          setStatus(e.message, "error");
+        }
+      };
+
+      // PHONE RECAPTCHA
+      window.setupRecaptcha = () => {
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new RecaptchaVerifier(
+            auth,
+            "recaptcha-container",
+            { size: "normal" }
+          );
+          window.recaptchaVerifier.render();
+        }
+      };
+
+      // SEND PHONE OTP
+      window.sendPhoneOtp = async () => {
+        const phone = document.getElementById("phone").value;
+        if (!phone) return setStatus("Enter phone number", "error");
+
+        setupRecaptcha();
+        setStatus("Sending SMS...");
+
+        try {
+          const confirmation = await signInWithPhoneNumber(
+            auth,
+            phone,
+            window.recaptchaVerifier
+          );
+          window.confirmationResult = confirmation;
+          document.getElementById("phone-step-1").classList.add("hidden");
+          document.getElementById("phone-step-2").classList.remove("hidden");
+          setStatus("SMS Sent.");
+        } catch (error) {
+          setStatus("SMS failed.", "error");
+          await reportFailure(phone);
+        }
+      };
+
+      // VERIFY PHONE OTP
+      window.verifyPhoneOtp = async () => {
+        const code = document.getElementById("phone-otp").value;
+        setStatus("Verifying...");
+
+        try {
+          const result = await window.confirmationResult.confirm(code);
+          completeBackendLogin(result.user);
+        } catch (error) {
+          setStatus("Invalid code.", "error");
+          await reportFailure(document.getElementById("phone").value);
+        }
+      };
+
+      // FINAL HANDSHAKE TO DJANGO
+      async function completeBackendLogin(user) {
+        setStatus("Securing session...");
+        const token = await user.getIdToken();
+
+        const res = await fetch("/api/login/", {
+          method: "POST",
+          body: JSON.stringify({ token }),
+        });
+
+        if (res.ok) {
+          window.location.href = "/";
+        } else {
+          const d = await res.json();
+          setStatus(d.message || "Login blocked.", "error");
+        }
+      }
+
+      // MODE SWITCHING
+      window.setMode = (mode) => {
+        window.currentMode = mode;
+
+        document
+          .querySelectorAll(".mode-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document
+          .querySelector(`.mode-btn[onclick="setMode('${mode}')"]`)
+          .classList.add("active");
+
+        if (mode === "login") {
+          document
+            .getElementById("email-login-view")
+            .classList.remove("hidden");
+          document
+            .getElementById("email-register-view")
+            .classList.add("hidden");
+          document.getElementById("phone-action-btn").innerText =
+            "Send Code to Login";
+        } else {
+          document.getElementById("email-login-view").classList.add("hidden");
+          document
+            .getElementById("email-register-view")
+            .classList.remove("hidden");
+          document.getElementById("phone-action-btn").innerText =
+            "Send Code to Register";
+        }
+      };
+
+      // TAB SWITCHING
+      window.switchTab = (type) => {
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelector(`.tab[onclick="switchTab('${type}')"]`)
+          .classList.add("active");
+
+        if (type === "email") {
+          document.getElementById("email-section").classList.remove("hidden");
+          document.getElementById("phone-section").classList.add("hidden");
+        } else {
+          document.getElementById("email-section").classList.add("hidden");
+          document.getElementById("phone-section").classList.remove("hidden");
+
+          setTimeout(setupRecaptcha, 500);
         }
       };
     </script>

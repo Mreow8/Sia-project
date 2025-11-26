@@ -8,15 +8,23 @@ load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'chavezhonzel@gmail.com'  # <--- REPLACE THIS
+EMAIL_HOST_PASSWORD = 'xxub wbko dafp itkn'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-mivzj97h+o4upu70rq!ji-#+l-k1a3e4n$i^7l0uffpf-+_7qq'
 # Firebase Frontend Config
 FIREBASE_CLIENT_CONFIG = {
     "apiKey": os.getenv("FIREBASE_API_KEY"),
-    "authDomain": f"{os.getenv('FIREBASE_PROJECT_ID')}.firebaseapp.com",
+    "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
     "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+    "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+    "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
     "appId": os.getenv("FIREBASE_APP_ID"),
+    "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
 }
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
