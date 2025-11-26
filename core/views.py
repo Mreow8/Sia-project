@@ -95,64 +95,73 @@ def verify_email_otp(request):
         else:
             return JsonResponse({'status': 'error', 'message': 'Invalid OTP.'}, status=400)
     return JsonResponse({'status': 'error'}, status=400)
-
 @csrf_exempt
 def report_failure(request):
     """
-    Security Monitor: Tracks failed logins/OTPs.
+    Security Monitor: Tracks failed logins (Email Only).
     """
     if request.method == 'POST':
-        data = json.loads(request.body)
-        identifier = data.get('identifier') # Email or Phone
-        ip = request.META.get('REMOTE_ADDR')
+        try:
+            data = json.loads(request.body)
+            identifier = data.get('identifier') 
+            ip = request.META.get('REMOTE_ADDR')
 
-        # 1. Log the failure
-        LoginAttempt.objects.create(identifier=identifier, ip_address=ip)
+            # 1. Log the failure
+            LoginAttempt.objects.create(identifier=identifier, ip_address=ip)
 
-        # 2. Count recent failures (last 10 minutes)
-        time_threshold = timezone.now() - timedelta(minutes=10)
-        recent_failures = LoginAttempt.objects.filter(
-            identifier=identifier, 
-            timestamp__gte=time_threshold
-        ).count()
+            # 2. Count recent failures (last 10 minutes)
+            time_threshold = timezone.now() - timedelta(minutes=10)
+            recent_failures = LoginAttempt.objects.filter(
+                identifier=identifier, 
+                timestamp__gte=time_threshold
+            ).count()
 
-        response = {'status': 'ok', 'count': recent_failures}
+            response = {'status': 'ok', 'count': recent_failures}
 
-        # --- SECURITY LOGIC ---
+            # --- TRIGGER 1: 3rd Failed Attempt (Alert User) ---
+            if recent_failures == 3:
+                try:
+                    if '@' in identifier:
+                        user = User.objects.get(email=identifier)
+                        
+                        subject = "Security Alert: Suspicious Login Activity"
+                        message = (
+                            f"Hello,\n\n"
+                            f"We noticed 3 failed login attempts on your account.\n"
+                            f"IP Address: {ip}\n"
+                            f"Time: {timezone.now()}\n\n"
+                            f"If this wasn't you, please reset your password immediately."
+                        )
+                        
+                        send_mail(
+                            subject,
+                            message,
+                            settings.EMAIL_HOST_USER,
+                            [user.email],
+                            fail_silently=True,
+                        )
+                        print(f"Alert sent to {user.email}")
+                        response['alert'] = "Email alert sent."
+                        
+                except User.DoesNotExist:
+                    pass 
 
-        # TRIGGER 1: 3rd Failed Attempt (Alert User)
-        if recent_failures == 3:
-            # Try to find the real user
-            try:
-                if '@' in identifier:
-                    user = User.objects.get(email=identifier)
-                    contact = user.email
-                else:
-                    # Assuming phone number is stored in Profile or Username
-                    user = User.objects.get(username=identifier) 
-                    contact = identifier
-                
-                # --- SIMULATE ALERT ---
-                # Real world: send_sms() or send_mail()
-                alert_msg = f"Security Alert: Someone failed to login to account {contact} 3 times from IP {ip}."
-                print(f"\n[⚠️ SECURITY BREACH] {alert_msg}\n")
-                
-                response['alert'] = "Security alert sent to account owner."
-            except User.DoesNotExist:
-                pass # Attacker is guessing non-existent accounts
+            # --- TRIGGER 2: 5th Failed Attempt (Block) ---
+            if recent_failures >= 5:
+                response['status'] = 'blocked'
+                response['message'] = 'Security Lockdown: Too many attempts. Please wait 10 minutes.'
 
-        # TRIGGER 2: 5th Failed Attempt (Block)
-        if recent_failures >= 5:
-            response['status'] = 'blocked'
-            response['message'] = 'Security Lockdown: Too many attempts. Please wait 10 minutes.'
+            return JsonResponse(response)
 
-        return JsonResponse(response)
-    return JsonResponse({'status': 'error'}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+    return JsonResponse({'status': 'error'}, status=405)
 
 @csrf_exempt
 def firebase_login(request):
     """
-    Final Login/Registration Handshake
+    Final Login/Registration Handshake (Email Only)
     """
     if request.method == 'POST':
         try:
@@ -163,16 +172,14 @@ def firebase_login(request):
             decoded_token = auth.verify_id_token(token)
             uid = decoded_token['uid']
             email = decoded_token.get('email')
-            phone = decoded_token.get('phone_number')
 
             # Identify User (or create if new)
             user, created = User.objects.get_or_create(username=uid)
             
-            # Security Check: Is this user currently blocked?
-            identifier = email if email else phone
-            if identifier:
+            # Security Check: Is this email currently blocked?
+            if email:
                 time_threshold = timezone.now() - timedelta(minutes=10)
-                fail_count = LoginAttempt.objects.filter(identifier=identifier, timestamp__gte=time_threshold).count()
+                fail_count = LoginAttempt.objects.filter(identifier=email, timestamp__gte=time_threshold).count()
                 
                 if fail_count >= 5:
                     return JsonResponse({
@@ -180,18 +187,17 @@ def firebase_login(request):
                         'message': 'Account is temporarily locked due to suspicious activity.'
                     }, status=403)
 
-            # If new user, save details
+            # If new user, save email
             if created:
                 user.email = email if email else ""
                 user.save()
-                Profile.objects.create(user=user, phone_number=phone)
                 # Clear session otp
                 if 'registration_otp' in request.session:
                     del request.session['registration_otp']
 
             # Success! Clear failures
-            if identifier:
-                LoginAttempt.objects.filter(identifier=identifier).delete()
+            if email:
+                LoginAttempt.objects.filter(identifier=email).delete()
             
             login(request, user)
             return JsonResponse({'status': 'success'})

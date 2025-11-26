@@ -6,14 +6,16 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
+STATIC_URL = 'static/'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'chavezhonzel@gmail.com'  # <--- REPLACE THIS
-EMAIL_HOST_PASSWORD = 'xxub wbko dafp itkn'
+EMAIL_HOST_USER = 'EMAIL_HOST_USER'  # <--- REPLACE THIS
+EMAIL_HOST_PASSWORD = 'EMAIL_HOST_PASSWORD'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-mivzj97h+o4upu70rq!ji-#+l-k1a3e4n$i^7l0uffpf-+_7qq'
 # Firebase Frontend Config
@@ -119,7 +121,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

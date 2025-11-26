@@ -4,8 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - SIA Website</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        padding: 20px;
+        background-color: #f4f4f9;
+      }
+
+      /* Logout Button Style */
+      .logout-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: #dc3545; /* Red color */
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: background 0.2s;
+      }
+
+      .logout-btn:hover {
+        background-color: #c82333; /* Darker red on hover */
+      }
+    </style>
   </head>
   <body>
     <p>treter</p>
+
+    <a href="/logout/" class="logout-btn">Logout</a>
   </body>
 </html>

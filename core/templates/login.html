@@ -1,215 +1,86 @@
-<!DOCTYPE html>
+{% load static %} <!DOCTYPE html>
 <html>
   <head>
-    <title>Secure Access</title>
+    <title>Welcome Back</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      body {
-        font-family: "Segoe UI", sans-serif;
-        background: #e9eff5;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-      }
-      .container {
-        background: white;
-        width: 380px;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-      h2 {
-        text-align: center;
-        color: #333;
-        margin-bottom: 5px;
-      }
-      .subtitle {
-        text-align: center;
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 25px;
-      }
 
-      /* Toggle Switch */
-      .mode-switch {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-        background: #f0f2f5;
-        border-radius: 20px;
-        padding: 4px;
-      }
-      .mode-btn {
-        flex: 1;
-        border: none;
-        background: transparent;
-        padding: 8px;
-        border-radius: 16px;
-        cursor: pointer;
-        font-weight: 600;
-        color: #666;
-        transition: 0.3s;
-      }
-      .mode-btn.active {
-        background: white;
-        color: #1877f2;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      .tabs {
-        display: flex;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #ddd;
-      }
-      .tab {
-        flex: 1;
-        padding: 10px;
-        text-align: center;
-        cursor: pointer;
-        color: #666;
-        font-size: 14px;
-      }
-      .tab.active {
-        color: #1877f2;
-        border-bottom: 2px solid #1877f2;
-        font-weight: bold;
-      }
-
-      input {
-        width: 100%;
-        padding: 12px;
-        margin: 8px 0;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        box-sizing: border-box;
-        font-size: 14px;
-      }
-      button {
-        width: 100%;
-        padding: 12px;
-        background: #1877f2;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 15px;
-        transition: background 0.2s;
-        font-weight: 600;
-      }
-      button:hover {
-        background: #1565c0;
-      }
-      button:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      #status {
-        margin-top: 15px;
-        text-align: center;
-        font-size: 13px;
-        color: #dc3545;
-        min-height: 20px;
-      }
-
-      .otp-display {
-        text-align: center;
-        letter-spacing: 5px;
-        font-size: 20px;
-        font-weight: bold;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'login.css' %}" />
   </head>
   <body>
     <div class="container">
-      <h2 id="page-title">Welcome Back</h2>
-      <p class="subtitle">Securely access your account</p>
+      <div class="hero-header"></div>
 
-      <div class="mode-switch">
-        <button class="mode-btn active" onclick="setMode('login')">
-          Login
-        </button>
-        <button class="mode-btn" onclick="setMode('register')">Register</button>
-      </div>
+      <div class="form-wrapper">
+        <h2 id="page-title">Welcome Back</h2>
+        <p class="subtitle" id="page-subtitle">Login to your account</p>
 
-      <div class="tabs">
-        <div class="tab active" onclick="switchTab('email')">Email</div>
-        <div class="tab" onclick="switchTab('phone')">Phone</div>
-      </div>
+        <div id="email-section">
+          <div id="email-login-view">
+            <input type="email" id="login-email" placeholder="Email Address" />
+            <input type="password" id="login-password" placeholder="Password" />
 
-      <div id="email-section">
-        <div id="email-login-view">
-          <input type="email" id="login-email" placeholder="Email Address" />
-          <input type="password" id="login-password" placeholder="Password" />
-          <button onclick="handleEmailLogin()">Log In</button>
-        </div>
+            <div style="text-align: right; margin-top: 5px; margin-bottom: 5px">
+              <a
+                href="#"
+                style="font-size: 12px; color: #88a494; text-decoration: none"
+                >Forgot Password?</a
+              >
+            </div>
 
-        <div id="email-register-view" class="hidden">
-          <div id="email-reg-step1">
-            <input
-              type="email"
-              id="reg-email"
-              placeholder="Enter Email to Verify"
-            />
-            <button onclick="sendEmailOtp()">Send Verification Code</button>
+            <button onclick="handleEmailLogin()">Login</button>
+
+            <div class="bottom-link">
+              Don't have an account?
+              <span onclick="setMode('register')">Sign up</span>
+            </div>
           </div>
 
-          <div id="email-reg-step2" class="hidden">
-            <p class="subtitle">Enter code sent to email</p>
-            <input
-              type="text"
-              id="reg-email-otp"
-              class="otp-display"
-              placeholder="123456"
-            />
-            <button onclick="verifyEmailOtp()">Verify Code</button>
+          <div id="email-register-view" class="hidden">
+            <div id="email-reg-step1">
+              <input type="email" id="reg-email" placeholder="Enter Email" />
+              <button onclick="sendEmailOtp()">Send Code</button>
+
+              <div class="bottom-link">
+                Already have an account?
+                <span onclick="setMode('login')">Login</span>
+              </div>
+            </div>
+
+            <div id="email-reg-step2" class="hidden">
+              <p class="subtitle">We sent a code to your email</p>
+              <input
+                type="text"
+                id="reg-email-otp"
+                class="otp-display"
+                placeholder="123456"
+                maxlength="6"
+              />
+              <button onclick="verifyEmailOtp()">Verify</button>
+
+              <button id="resend-btn" onclick="sendEmailOtp()" disabled>
+                Resend Code (60s)
+              </button>
+            </div>
+
+            <div id="email-reg-step3" class="hidden">
+              <p class="subtitle">Set your password</p>
+              <input
+                type="password"
+                id="reg-password"
+                placeholder="New Password"
+              />
+              <input
+                type="password"
+                id="reg-confirm"
+                placeholder="Confirm Password"
+              />
+              <button onclick="finalizeEmailRegister()">Create Account</button>
+            </div>
           </div>
-
-          <div id="email-reg-step3" class="hidden">
-            <p class="subtitle">Email Verified! Set Password.</p>
-            <input
-              type="password"
-              id="reg-password"
-              placeholder="New Password"
-            />
-            <input
-              type="password"
-              id="reg-confirm"
-              placeholder="Confirm Password"
-            />
-            <button onclick="finalizeEmailRegister()">Create Account</button>
-          </div>
         </div>
+
+        <p id="status"></p>
       </div>
-
-      <div id="phone-section" class="hidden">
-        <div id="phone-step-1">
-          <input type="tel" id="phone" placeholder="+63 917 123 4567" />
-          <div id="recaptcha-container"></div>
-          <button onclick="sendPhoneOtp()" id="phone-action-btn">
-            Send Code
-          </button>
-        </div>
-        <div id="phone-step-2" class="hidden">
-          <p class="subtitle">Enter SMS code:</p>
-          <input
-            type="text"
-            id="phone-otp"
-            class="otp-display"
-            placeholder="123456"
-          />
-          <button onclick="verifyPhoneOtp()">Verify & Login</button>
-        </div>
-      </div>
-
-      <p id="status"></p>
     </div>
 
     <script type="module">
@@ -218,9 +89,7 @@
         getAuth,
         signInWithEmailAndPassword,
         createUserWithEmailAndPassword,
-        signInWithPhoneNumber,
-        RecaptchaVerifier,
-        signOut, // <--- IMPORTED SIGNOUT
+        signOut,
       } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
       const firebaseConfig = {
@@ -238,13 +107,13 @@
 
       // State
       window.currentMode = "login";
-      window.confirmationResult = null;
+      window.resendTimer = null;
 
       // Status helper
       function setStatus(msg, type = "normal") {
         const el = document.getElementById("status");
         el.innerText = msg;
-        el.style.color = type === "error" ? "#dc3545" : "#666";
+        el.style.color = type === "error" ? "#dc3545" : "#88a494";
       }
 
       // Security Reporter
@@ -268,19 +137,42 @@
         return false;
       }
 
+      // TIMER FUNCTION
+      window.startCooldown = () => {
+        const btn = document.getElementById("resend-btn");
+        let timeLeft = 60;
+
+        btn.disabled = true;
+        btn.innerText = `Resend Code (${timeLeft}s)`;
+
+        if (window.resendTimer) clearInterval(window.resendTimer);
+
+        window.resendTimer = setInterval(() => {
+          timeLeft--;
+          btn.innerText = `Resend Code (${timeLeft}s)`;
+
+          if (timeLeft <= 0) {
+            clearInterval(window.resendTimer);
+            btn.disabled = false;
+            btn.innerText = "Resend Code";
+          }
+        }, 1000);
+      };
+
       // EMAIL LOGIN
       window.handleEmailLogin = async () => {
         const email = document.getElementById("login-email").value;
         const pass = document.getElementById("login-password").value;
 
-        if (!email || !pass) return setStatus("Fill all fields", "error");
+        if (!email || !pass)
+          return setStatus("Please fill all fields", "error");
         setStatus("Authenticating...");
 
         try {
           const cred = await signInWithEmailAndPassword(auth, email, pass);
           completeBackendLogin(cred.user);
         } catch (error) {
-          setStatus("Login failed.", "error");
+          setStatus("Login failed. Check credentials.", "error");
           await reportFailure(email);
         }
       };
@@ -290,7 +182,12 @@
         const email = document.getElementById("reg-email").value;
         if (!email) return setStatus("Enter email first", "error");
 
-        setStatus("Sending OTP...");
+        setStatus("Sending code...");
+
+        // Disable buttons
+        const resendBtn = document.getElementById("resend-btn");
+        if (resendBtn) resendBtn.disabled = true;
+
         const res = await fetch("/api/send_email_otp/", {
           method: "POST",
           body: JSON.stringify({ email }),
@@ -300,9 +197,11 @@
         if (data.status === "success") {
           document.getElementById("email-reg-step1").classList.add("hidden");
           document.getElementById("email-reg-step2").classList.remove("hidden");
-          setStatus("OTP sent!");
+          setStatus("Code sent!");
+          startCooldown();
         } else {
           setStatus(data.message, "error");
+          if (resendBtn) resendBtn.disabled = false;
         }
       };
 
@@ -322,11 +221,11 @@
           document.getElementById("email-reg-step3").classList.remove("hidden");
           setStatus("Email verified.");
         } else {
-          setStatus("Incorrect OTP.", "error");
+          setStatus("Incorrect Code.", "error");
         }
       };
 
-      // FINAL EMAIL ACCOUNT CREATION (UPDATED)
+      // FINAL REGISTER
       window.finalizeEmailRegister = async () => {
         const email = document.getElementById("reg-email").value;
         const pass = document.getElementById("reg-password").value;
@@ -337,79 +236,20 @@
         if (pass.length < 6) return setStatus("Password too short", "error");
 
         try {
-          // 1. Create account (Firebase logs in by default here)
           await createUserWithEmailAndPassword(auth, email, pass);
-
-          // 2. LOG OUT IMMEDIATELY
           await signOut(auth);
 
-          // 3. Switch UI to Login mode
           setMode("login");
-
-          // 4. Pre-fill the login email for convenience
           document.getElementById("login-email").value = email;
-
-          // 5. Clear registration fields
           document.getElementById("reg-password").value = "";
           document.getElementById("reg-confirm").value = "";
 
-          setStatus("Account created! Please log in.", "normal");
+          setStatus("Success! Please log in.", "normal");
         } catch (e) {
           setStatus(e.message, "error");
         }
       };
 
-      // PHONE RECAPTCHA
-      window.setupRecaptcha = () => {
-        if (!window.recaptchaVerifier) {
-          window.recaptchaVerifier = new RecaptchaVerifier(
-            auth,
-            "recaptcha-container",
-            { size: "normal" }
-          );
-          window.recaptchaVerifier.render();
-        }
-      };
-
-      // SEND PHONE OTP
-      window.sendPhoneOtp = async () => {
-        const phone = document.getElementById("phone").value;
-        if (!phone) return setStatus("Enter phone number", "error");
-
-        setupRecaptcha();
-        setStatus("Sending SMS...");
-
-        try {
-          const confirmation = await signInWithPhoneNumber(
-            auth,
-            phone,
-            window.recaptchaVerifier
-          );
-          window.confirmationResult = confirmation;
-          document.getElementById("phone-step-1").classList.add("hidden");
-          document.getElementById("phone-step-2").classList.remove("hidden");
-          setStatus("SMS Sent.");
-        } catch (error) {
-          setStatus("SMS failed.", "error");
-          await reportFailure(phone);
-        }
-      };
-
-      // VERIFY PHONE OTP
-      window.verifyPhoneOtp = async () => {
-        const code = document.getElementById("phone-otp").value;
-        setStatus("Verifying...");
-
-        try {
-          const result = await window.confirmationResult.confirm(code);
-          completeBackendLogin(result.user);
-        } catch (error) {
-          setStatus("Invalid code.", "error");
-          await reportFailure(document.getElementById("phone").value);
-        }
-      };
-
-      // FINAL HANDSHAKE TO DJANGO
       async function completeBackendLogin(user) {
         setStatus("Securing session...");
         const token = await user.getIdToken();
@@ -427,16 +267,11 @@
         }
       }
 
-      // MODE SWITCHING
+      // MODE SWITCHING (Visual Update)
       window.setMode = (mode) => {
         window.currentMode = mode;
-
-        document
-          .querySelectorAll(".mode-btn")
-          .forEach((b) => b.classList.remove("active"));
-        document
-          .querySelector(`.mode-btn[onclick="setMode('${mode}')"]`)
-          .classList.add("active");
+        const title = document.getElementById("page-title");
+        const subtitle = document.getElementById("page-subtitle");
 
         if (mode === "login") {
           document
@@ -445,36 +280,21 @@
           document
             .getElementById("email-register-view")
             .classList.add("hidden");
-          document.getElementById("phone-action-btn").innerText =
-            "Send Code to Login";
+          title.innerText = "Welcome Back";
+          subtitle.innerText = "Login to your account";
         } else {
           document.getElementById("email-login-view").classList.add("hidden");
           document
             .getElementById("email-register-view")
             .classList.remove("hidden");
-          document.getElementById("phone-action-btn").innerText =
-            "Send Code to Register";
+          // Reset steps
+          document.getElementById("email-reg-step1").classList.remove("hidden");
+          document.getElementById("email-reg-step2").classList.add("hidden");
+          document.getElementById("email-reg-step3").classList.add("hidden");
+          title.innerText = "Register";
+          subtitle.innerText = "Create your new account";
         }
-      };
-
-      // TAB SWITCHING
-      window.switchTab = (type) => {
-        document
-          .querySelectorAll(".tab")
-          .forEach((t) => t.classList.remove("active"));
-        document
-          .querySelector(`.tab[onclick="switchTab('${type}')"]`)
-          .classList.add("active");
-
-        if (type === "email") {
-          document.getElementById("email-section").classList.remove("hidden");
-          document.getElementById("phone-section").classList.add("hidden");
-        } else {
-          document.getElementById("email-section").classList.add("hidden");
-          document.getElementById("phone-section").classList.remove("hidden");
-
-          setTimeout(setupRecaptcha, 500);
-        }
+        setStatus(""); // Clear errors
       };
     </script>
   </body>
