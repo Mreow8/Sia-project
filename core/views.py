@@ -26,7 +26,6 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# --- PAGES ---
 def login_page(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -118,35 +117,38 @@ def report_failure(request):
 
             response = {'status': 'ok', 'count': recent_failures}
 
-            # --- TRIGGER 1: 3rd Failed Attempt (Alert User) ---
             if recent_failures == 3:
                 try:
                     if '@' in identifier:
                         user = User.objects.get(email=identifier)
                         
-                        subject = "Security Alert: Suspicious Login Activity"
-                        message = (
+                        print(f"Attempting to email {user.email}...")
+
+                        email_body = (
                             f"Hello,\n\n"
                             f"We noticed 3 failed login attempts on your account.\n"
                             f"IP Address: {ip}\n"
                             f"Time: {timezone.now()}\n\n"
                             f"If this wasn't you, please reset your password immediately."
                         )
-                        
+
                         send_mail(
-                            subject,
-                            message,
-                            settings.EMAIL_HOST_USER,
-                            [user.email],
-                            fail_silently=True,
+                            subject="Security Alert: Suspicious Login Activity",
+                            message=email_body,
+                            from_email=settings.EMAIL_HOST_USER,
+                            recipient_list=[user.email],
+                            fail_silently=False, 
                         )
-                        print(f"Alert sent to {user.email}")
+                        
+                        print(f"Alert successfully sent to {user.email}")
                         response['alert'] = "Email alert sent."
                         
                 except User.DoesNotExist:
+                    print(f"User {identifier} not found in Django DB. No email sent.") # DEBUG PRINT
                     pass 
+                except Exception as e:
+                    print(f"SMTP Error: {e}") # DEBUG PRINT
 
-            # --- TRIGGER 2: 5th Failed Attempt (Block) ---
             if recent_failures >= 5:
                 response['status'] = 'blocked'
                 response['message'] = 'Security Lockdown: Too many attempts. Please wait 10 minutes.'

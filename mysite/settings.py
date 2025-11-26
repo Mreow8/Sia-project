@@ -14,8 +14,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'EMAIL_HOST_USER'  # <--- REPLACE THIS
-EMAIL_HOST_PASSWORD = 'EMAIL_HOST_PASSWORD'
+EMAIL_HOST_USER = 'chavezhonzel@gmail.com'  # <--- REPLACE THIS
+EMAIL_HOST_PASSWORD = 'xxub wbko dafp itkn'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-mivzj97h+o4upu70rq!ji-#+l-k1a3e4n$i^7l0uffpf-+_7qq'
 # Firebase Frontend Config
