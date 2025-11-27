@@ -17,20 +17,22 @@ import os
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+firebase_key_json = os.environ.get("FIREBASE_KEY")
 
-# Read Firebase service account JSON from environment variable
-cred_json = os.environ.get("FIREBASE_KEY")
+if firebase_key_json:
+    # Running on Render (or anywhere with env var)
+    cred_dict = json.loads(firebase_key_json)
+    cred = credentials.Certificate(cred_dict)
+else:
+    # Running locally
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    SERVICE_KEY = os.path.join(BASE_DIR, "firebase/serviceAccountKey.json")
+    cred = credentials.Certificate(SERVICE_KEY)
 
 if not firebase_admin._apps:
-    if cred_json:
-        cred = credentials.Certificate(json.loads(cred_json))
-        firebase_admin.initialize_app(cred)
-    else:
-        raise Exception("FIREBASE_KEY environment variable not set.")
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-
-
 def login_page(request):
     if request.user.is_authenticated:
         return redirect('home')
